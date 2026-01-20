@@ -1,6 +1,5 @@
 package com.byteme.app;
 
-import lombok.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +15,12 @@ public class GamificationController {
     private final RescueEventRepository rescueEventRepo;
     private final BadgeRepository badgeRepo;
     private final EmployeeBadgeRepository employeeBadgeRepo;
+
+	// Getters
+    public EmployeeRepository getEmployeeRepo() { return employeeRepo; }
+    public RescueEventRepository getRescueEventRepo() { return rescueEventRepo; }
+    public BadgeRepository getBadgeRepo() { return badgeRepo; }
+    public EmployeeBadgeRepository getEmployeeBadgeRepo() { return employeeBadgeRepo; }
 
     @GetMapping("/streak/{employeeId}")
     public ResponseEntity<?> getStreak(@PathVariable UUID employeeId) {
@@ -59,19 +64,41 @@ public class GamificationController {
     }
 
     // DTOs
-    @Data @NoArgsConstructor @AllArgsConstructor
     public static class StreakResponse {
         int currentStreakWeeks;
         int bestStreakWeeks;
         java.time.LocalDate lastRescueWeekStart;
+
+		// Getters
+        public int getCurrentStreakWeeks() { return currentStreakWeeks; }
+        public int getBestStreakWeeks() { return bestStreakWeeks; }
+        public java.time.LocalDate getLastRescueWeekStart() { return lastRescueWeekStart; }
+
+        // Setters
+        public void setCurrentStreakWeeks(int currentStreakWeeks) { this.currentStreakWeeks = currentStreakWeeks; }
+        public void setBestStreakWeeks(int bestStreakWeeks) { this.bestStreakWeeks = bestStreakWeeks; }
+        public void setLastRescueWeekStart(java.time.LocalDate lastRescueWeekStart) { this.lastRescueWeekStart = lastRescueWeekStart; }
     }
 
-    @Data @NoArgsConstructor @AllArgsConstructor
     public static class ImpactResponse {
         int totalRescues;
         int totalMealsSaved;
         double totalCo2eSavedKg;
         int currentStreakWeeks;
         int badgesEarned;
+
+		// Getters
+        public int getTotalRescues() { return totalRescues; }
+        public int getTotalMealsSaved() { return totalMealsSaved; }
+        public double getTotalCo2eSavedKg() { return totalCo2eSavedKg; }
+        public int getCurrentStreakWeeks() { return currentStreakWeeks; }
+        public int getBadgesEarned() { return badgesEarned; }
+
+        // Setters
+        public void setTotalRescues(int totalRescues) { this.totalRescues = totalRescues; }
+        public void setTotalMealsSaved(int totalMealsSaved) { this.totalMealsSaved = totalMealsSaved; }
+        public void setTotalCo2eSavedKg(double totalCo2eSavedKg) { this.totalCo2eSavedKg = totalCo2eSavedKg; }
+        public void setCurrentStreakWeeks(int currentStreakWeeks) { this.currentStreakWeeks = currentStreakWeeks; }
+        public void setBadgesEarned(int badgesEarned) { this.badgesEarned = badgesEarned; }
     }
 }

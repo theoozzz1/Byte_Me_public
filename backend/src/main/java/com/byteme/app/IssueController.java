@@ -18,6 +18,23 @@ public class IssueController {
     private final ReservationRepository reservationRepo;
     private final EmployeeRepository employeeRepo;
 
+	// Getters
+    public IssueReportRepository getIssueRepo() { 
+        return issueRepo; 
+    }
+
+    public BundlePostingRepository getBundleRepo() { 
+        return bundleRepo; 
+    }
+
+    public ReservationRepository getReservationRepo() { 
+        return reservationRepo; 
+    }
+
+    public EmployeeRepository getEmployeeRepo() { 
+        return employeeRepo; 
+    }
+
     @GetMapping("/seller/{sellerId}")
     public List<IssueReport> getBySeller(@PathVariable UUID sellerId) {
         return issueRepo.findBySeller(sellerId);
@@ -76,11 +93,33 @@ public class IssueController {
         UUID employeeId;
         IssueReport.Type type;
         String description;
+
+		// Getters
+        public UUID getPostingId() { return postingId; }
+        public UUID getReservationId() { return reservationId; }
+        public UUID getEmployeeId() { return employeeId; }
+        public IssueReport.Type getType() { return type; }
+        public String getDescription() { return description; }
+
+        // Setters
+        public void setPostingId(UUID postingId) { this.postingId = postingId; }
+        public void setReservationId(UUID reservationId) { this.reservationId = reservationId; }
+        public void setEmployeeId(UUID employeeId) { this.employeeId = employeeId; }
+        public void setType(IssueReport.Type type) { this.type = type; }
+        public void setDescription(String description) { this.description = description; }
     }
 
     @Data @NoArgsConstructor @AllArgsConstructor
     public static class RespondRequest {
         String response;
         boolean resolve;
+
+		/ Getters
+        public String getResponse() { return response; }
+        public boolean isResolve() { return resolve; }
+
+        // Setters
+        public void setResponse(String response) { this.response = response; }
+        public void setResolve(boolean resolve) { this.resolve = resolve; }
     }
 }

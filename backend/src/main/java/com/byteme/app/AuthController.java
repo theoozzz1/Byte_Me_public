@@ -1,6 +1,5 @@
 package com.byteme.app;
 
-import lombok.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -67,26 +66,57 @@ public class AuthController {
     }
 
     // DTOs
-    @Data @NoArgsConstructor @AllArgsConstructor
     public static class RegisterRequest {
         String email;
         String password;
         UserAccount.Role role;
         String businessName; // for sellers
         String location;     // for sellers
+		
+		// Getters
+        public String getEmail() { return email; }
+        public String getPassword() { return password; }
+        public UserAccount.Role getRole() { return role; }
+        public String getBusinessName() { return businessName; }
+        public String getLocation() { return location; }
+
+        // Setters
+        public void setEmail(String email) { this.email = email; }
+        public void setPassword(String password) { this.password = password; }
+        public void setRole(UserAccount.Role role) { this.role = role; }
+        public void setBusinessName(String businessName) { this.businessName = businessName; }
+        public void setLocation(String location) { this.location = location; }
     }
 
-    @Data @NoArgsConstructor @AllArgsConstructor
     public static class LoginRequest {
         String email;
         String password;
+		
+		// Getters
+        public String getEmail() { return email; }
+        public String getPassword() { return password; }
+
+        // Setters
+        public void setEmail(String email) { this.email = email; }
+        public void setPassword(String password) { this.password = password; }
     }
 
-    @Data @NoArgsConstructor @AllArgsConstructor
     public static class AuthResponse {
         String token;
         UUID userId;
         String email;
         UserAccount.Role role;
+
+		// Getters
+        public String getToken() { return token; }
+        public UUID getUserId() { return userId; }
+        public String getEmail() { return email; }
+        public UserAccount.Role getRole() { return role; }
+
+        // Setters
+        public void setToken(String token) { this.token = token; }
+        public void setUserId(UUID userId) { this.userId = userId; }
+        public void setEmail(String email) { this.email = email; }
+        public void setRole(UserAccount.Role role) { this.role = role; }
     }
 }

@@ -1,6 +1,5 @@
 package com.byteme.app;
 
-import lombok.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -97,7 +96,6 @@ public class BundleController {
     }
 
     // DTOs
-    @Data @NoArgsConstructor @AllArgsConstructor
     public static class CreateBundleRequest {
         UUID categoryId;
         Instant pickupStartAt;
@@ -109,14 +107,51 @@ public class BundleController {
         String allergensText;
         Integer estimatedWeightGrams;
         boolean activate;
+
+		// Getters
+        public UUID getCategoryId() { return categoryId; }
+        public Instant getPickupStartAt() { return pickupStartAt; }
+        public Instant getPickupEndAt() { return pickupEndAt; }
+        public Integer getQuantityTotal() { return quantityTotal; }
+        public Integer getPriceCents() { return priceCents; }
+        public Integer getDiscountPct() { return discountPct; }
+        public String getContentsText() { return contentsText; }
+        public String getAllergensText() { return allergensText; }
+        public Integer getEstimatedWeightGrams() { return estimatedWeightGrams; }
+        public boolean isActivate() { return activate; }
+
+        // Setters
+        public void setCategoryId(UUID categoryId) { this.categoryId = categoryId; }
+        public void setPickupStartAt(Instant pickupStartAt) { this.pickupStartAt = pickupStartAt; }
+        public void setPickupEndAt(Instant pickupEndAt) { this.pickupEndAt = pickupEndAt; }
+        public void setQuantityTotal(Integer quantityTotal) { this.quantityTotal = quantityTotal; }
+        public void setPriceCents(Integer priceCents) { this.priceCents = priceCents; }
+        public void setDiscountPct(Integer discountPct) { this.discountPct = discountPct; }
+        public void setContentsText(String contentsText) { this.contentsText = contentsText; }
+        public void setAllergensText(String allergensText) { this.allergensText = allergensText; }
+        public void setEstimatedWeightGrams(Integer estimatedWeightGrams) { this.estimatedWeightGrams = estimatedWeightGrams; }
+        public void setActivate(boolean activate) { this.activate = activate; }
     }
 
-    @Data @NoArgsConstructor @AllArgsConstructor
     public static class UpdateBundleRequest {
         Integer quantityTotal;
         Integer priceCents;
         Integer discountPct;
         String contentsText;
         String allergensText;
+
+		// Getters
+        public Integer getQuantityTotal() { return quantityTotal; }
+        public Integer getPriceCents() { return priceCents; }
+        public Integer getDiscountPct() { return discountPct; }
+        public String getContentsText() { return contentsText; }
+        public String getAllergensText() { return allergensText; }
+
+        // Setters
+        public void setQuantityTotal(Integer quantityTotal) { this.quantityTotal = quantityTotal; }
+        public void setPriceCents(Integer priceCents) { this.priceCents = priceCents; }
+        public void setDiscountPct(Integer discountPct) { this.discountPct = discountPct; }
+        public void setContentsText(String contentsText) { this.contentsText = contentsText; }
+        public void setAllergensText(String allergensText) { this.allergensText = allergensText; }
     }
 }

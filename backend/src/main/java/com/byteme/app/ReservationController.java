@@ -1,6 +1,5 @@
 package com.byteme.app;
 
-import lombok.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -200,15 +199,25 @@ public class ReservationController {
     }
 
     // DTOs
-    @Data @NoArgsConstructor @AllArgsConstructor
     public static class CreateReservationRequest {
         UUID postingId;
         UUID organisationId;
         UUID employeeId;
         Integer quantity;
+
+		// Getters
+        public UUID getPostingId() { return postingId; }
+        public UUID getOrganisationId() { return organisationId; }
+        public UUID getEmployeeId() { return employeeId; }
+        public Integer getQuantity() { return quantity; }
+
+        // Setters
+        public void setPostingId(UUID postingId) { this.postingId = postingId; }
+        public void setOrganisationId(UUID organisationId) { this.organisationId = organisationId; }
+        public void setEmployeeId(UUID employeeId) { this.employeeId = employeeId; }
+        public void setQuantity(Integer quantity) { this.quantity = quantity; }
     }
 
-    @Data @NoArgsConstructor @AllArgsConstructor
     public static class ReservationResponse {
         UUID reservationId;
         String claimCode;
@@ -217,16 +226,46 @@ public class ReservationController {
         Instant pickupEndAt;
         String sellerName;
         String sellerLocation;
+
+		// Getters
+        public UUID getReservationId() { return reservationId; }
+        public String getClaimCode() { return claimCode; }
+        public String getClaimCodeLast4() { return claimCodeLast4; }
+        public Instant getPickupStartAt() { return pickupStartAt; }
+        public Instant getPickupEndAt() { return pickupEndAt; }
+        public String getSellerName() { return sellerName; }
+        public String getSellerLocation() { return sellerLocation; }
+
+        // Setters
+        public void setReservationId(UUID reservationId) { this.reservationId = reservationId; }
+        public void setClaimCode(String claimCode) { this.claimCode = claimCode; }
+        public void setClaimCodeLast4(String claimCodeLast4) { this.claimCodeLast4 = claimCodeLast4; }
+        public void setPickupStartAt(Instant pickupStartAt) { this.pickupStartAt = pickupStartAt; }
+        public void setPickupEndAt(Instant pickupEndAt) { this.pickupEndAt = pickupEndAt; }
+        public void setSellerName(String sellerName) { this.sellerName = sellerName; }
+        public void setSellerLocation(String sellerLocation) { this.sellerLocation = sellerLocation; }
     }
 
-    @Data @NoArgsConstructor @AllArgsConstructor
     public static class VerifyRequest {
         String claimCode;
+
+		// Getter
+        public String getClaimCode() { return claimCode; }
+
+        // Setter
+        public void setClaimCode(String claimCode) { this.claimCode = claimCode; }
     }
 
-    @Data @NoArgsConstructor @AllArgsConstructor
     public static class VerifyResponse {
         boolean success;
         String message;
+
+		// Getters
+        public boolean isSuccess() { return success; }
+        public String getMessage() { return message; }
+
+        // Setters
+        public void setSuccess(boolean success) { this.success = success; }
+        public void setMessage(String message) { this.message = message; }
     }
 }
