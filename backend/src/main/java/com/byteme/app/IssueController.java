@@ -1,6 +1,5 @@
 package com.byteme.app;
 
-import lombok.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,13 +9,20 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/issues")
-@RequiredArgsConstructor
 public class IssueController {
 
     private final IssueReportRepository issueRepo;
     private final BundlePostingRepository bundleRepo;
     private final ReservationRepository reservationRepo;
     private final EmployeeRepository employeeRepo;
+
+    public IssueController(IssueReportRepository issueRepo, BundlePostingRepository bundleRepo,
+                           ReservationRepository reservationRepo, EmployeeRepository employeeRepo) {
+        this.issueRepo = issueRepo;
+        this.bundleRepo = bundleRepo;
+        this.reservationRepo = reservationRepo;
+        this.employeeRepo = employeeRepo;
+    }
 
     @GetMapping("/seller/{sellerId}")
     public List<IssueReport> getBySeller(@PathVariable UUID sellerId) {
@@ -30,13 +36,18 @@ public class IssueController {
 
     @PostMapping
     public ResponseEntity<?> create(@RequestBody CreateIssueRequest req) {
-        var issue = IssueReport.builder()
-                .posting(req.postingId != null ? bundleRepo.findById(req.postingId).orElse(null) : null)
-                .reservation(req.reservationId != null ? reservationRepo.findById(req.reservationId).orElse(null) : null)
-                .employee(req.employeeId != null ? employeeRepo.findById(req.employeeId).orElse(null) : null)
-                .type(req.type)
-                .description(req.description)
-                .build();
+        IssueReport issue = new IssueReport();
+        if (req.getPostingId() != null) {
+            issue.setPosting(bundleRepo.findById(req.getPostingId()).orElse(null));
+        }
+        if (req.getReservationId() != null) {
+            issue.setReservation(reservationRepo.findById(req.getReservationId()).orElse(null));
+        }
+        if (req.getEmployeeId() != null) {
+            issue.setEmployee(employeeRepo.findById(req.getEmployeeId()).orElse(null));
+        }
+        issue.setType(req.getType());
+        issue.setDescription(req.getDescription());
 
         return ResponseEntity.ok(issueRepo.save(issue));
     }
@@ -46,10 +57,10 @@ public class IssueController {
         var issue = issueRepo.findById(id).orElse(null);
         if (issue == null) return ResponseEntity.notFound().build();
 
-        issue.setSellerResponse(req.response);
+        issue.setSellerResponse(req.getResponse());
         issue.setStatus(IssueReport.Status.RESPONDED);
         
-        if (req.resolve) {
+        if (req.isResolve()) {
             issue.setStatus(IssueReport.Status.RESOLVED);
             issue.setResolvedAt(Instant.now());
         }
@@ -69,18 +80,36 @@ public class IssueController {
     }
 
     // DTOs
-    @Data @NoArgsConstructor @AllArgsConstructor
     public static class CreateIssueRequest {
-        UUID postingId;
-        UUID reservationId;
-        UUID employeeId;
-        IssueReport.Type type;
-        String description;
+        private UUID postingId;
+        private UUID reservationId;
+        private UUID employeeId;
+        private IssueReport.Type type;
+        private String description;
+
+        public CreateIssueRequest() {}
+
+        public UUID getPostingId() { return postingId; }
+        public void setPostingId(UUID postingId) { this.postingId = postingId; }
+        public UUID getReservationId() { return reservationId; }
+        public void setReservationId(UUID reservationId) { this.reservationId = reservationId; }
+        public UUID getEmployeeId() { return employeeId; }
+        public void setEmployeeId(UUID employeeId) { this.employeeId = employeeId; }
+        public IssueReport.Type getType() { return type; }
+        public void setType(IssueReport.Type type) { this.type = type; }
+        public String getDescription() { return description; }
+        public void setDescription(String description) { this.description = description; }
     }
 
-    @Data @NoArgsConstructor @AllArgsConstructor
     public static class RespondRequest {
-        String response;
-        boolean resolve;
+        private String response;
+        private boolean resolve;
+
+        public RespondRequest() {}
+
+        public String getResponse() { return response; }
+        public void setResponse(String response) { this.response = response; }
+        public boolean isResolve() { return resolve; }
+        public void setResolve(boolean resolve) { this.resolve = resolve; }
     }
 }

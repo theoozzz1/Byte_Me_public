@@ -1,13 +1,11 @@
 package com.byteme.app;
 
 import jakarta.persistence.*;
-import lombok.*;
 import java.time.Instant;
 import java.util.UUID;
 
 @Entity
 @Table(name = "bundle_posting")
-@Data @NoArgsConstructor @AllArgsConstructor @Builder
 public class BundlePosting {
 
     public enum Status { DRAFT, ACTIVE, CLOSED, CANCELLED }
@@ -64,4 +62,35 @@ public class BundlePosting {
     public int getAvailable() {
         return quantityTotal - quantityReserved;
     }
+
+	/// Getters
+    public UUID getPostingId() { return postingId; }
+    public Seller getSeller() { return seller; }
+    public Category getCategory() { return category; }
+    public Instant getPickupStartAt() { return pickupStartAt; }
+    public Instant getPickupEndAt() { return pickupEndAt; }
+    public Integer getQuantityTotal() { return quantityTotal; }
+    public Integer getQuantityReserved() { return quantityReserved; }
+    public Integer getPriceCents() { return priceCents; }
+    public Integer getDiscountPct() { return discountPct; }
+    public String getContentsText() { return contentsText; }
+    public String getAllergensText() { return allergensText; }
+    public Status getStatus() { return status; }
+    public Integer getEstimatedWeightGrams() { return estimatedWeightGrams; }
+    public Instant getCreatedAt() { return createdAt; }
+
+    // Setters
+    public void setPostingId(UUID postingId) { this.postingId = postingId; }
+    public void setSeller(Seller seller) { this.seller = seller; }
+    public void setCategory(Category category) { this.category = category; }
+    public void setPickupStartAt(Instant pickupStartAt) { this.pickupStartAt = pickupStartAt; }
+    public void setPickupEndAt(Instant pickupEndAt) { this.pickupEndAt = pickupEndAt; }
+    public void setQuantityTotal(Integer quantityTotal) { this.quantityTotal = quantityTotal; }
+    public void setQuantityReserved(Integer quantityReserved) { this.quantityReserved = quantityReserved; }
+    public void setPriceCents(Integer priceCents) { this.priceCents = priceCents; }
+    public void setDiscountPct(Integer discountPct) { this.discountPct = discountPct; }
+    public void setContentsText(String contentsText) { this.contentsText = contentsText; }
+    public void setAllergensText(String allergensText) { this.allergensText = allergensText; }
+    public void setStatus(Status status) { this.status = status; }
+    public void setEstimatedWeightGrams(Integer estimatedWeightGrams) { this.estimatedWeightGrams = estimatedWeightGrams; }
 }

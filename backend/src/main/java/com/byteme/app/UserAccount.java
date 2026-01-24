@@ -1,14 +1,12 @@
 package com.byteme.app;
 
 import jakarta.persistence.*;
-import lombok.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.Instant;
 import java.util.UUID;
 
 @Entity
 @Table(name = "user_account")
-@Data @NoArgsConstructor @AllArgsConstructor @Builder
 public class UserAccount {
 
     public enum Role { SELLER, ORG_ADMIN, EMPLOYEE, MAINTAINER }
@@ -30,4 +28,18 @@ public class UserAccount {
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
+
+	/// Getters
+    public UUID getUserId() { return userId; }
+    public String getEmail() { return email; }
+    public String getPasswordHash() { return passwordHash; }
+    public Role getRole() { return role; }
+    public Instant getCreatedAt() { return createdAt; }
+
+    // Setters
+    public void setUserId(UUID userId) { this.userId = userId; }
+    public void setEmail(String email) { this.email = email; }
+    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
+    public void setRole(Role role) { this.role = role; }
+    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
 }

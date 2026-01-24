@@ -1,14 +1,13 @@
 package com.byteme.app;
 
 import jakarta.persistence.*;
-import lombok.*;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
 @Table(name = "employee")
-@Data @NoArgsConstructor @AllArgsConstructor @Builder
+ 
 public class Employee {
 
     @Id
