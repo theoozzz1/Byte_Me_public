@@ -6,10 +6,12 @@ import java.util.List;
 import java.util.UUID;
 
 public interface IssueReportRepository extends JpaRepository<IssueReport, UUID> {
-    
-    @Query("SELECT i FROM IssueReport i WHERE i.posting.seller.sellerId = :sellerId AND i.status = 'OPEN'")
-    List<IssueReport> findOpenBySeller(UUID sellerId);
-    
-    @Query("SELECT i FROM IssueReport i WHERE i.posting.seller.sellerId = :sellerId")
+
+    List<IssueReport> findByOrganisationOrgId(UUID orgId);
+
+    @Query("SELECT i FROM IssueReport i WHERE i.order.posting.seller.sellerId = :sellerId")
     List<IssueReport> findBySeller(UUID sellerId);
+
+    @Query("SELECT i FROM IssueReport i WHERE i.order.posting.seller.sellerId = :sellerId AND i.status = 'OPEN'")
+    List<IssueReport> findOpenBySeller(UUID sellerId);
 }

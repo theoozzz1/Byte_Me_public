@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
@@ -9,7 +9,7 @@ export class ApiError extends Error {
 
 async function fetchApi(endpoint: string, options: RequestInit = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
-  
+
   const response = await fetch(url, {
     ...options,
     headers: {
@@ -25,44 +25,54 @@ async function fetchApi(endpoint: string, options: RequestInit = {}) {
   return response.json();
 }
 
-//auth
+// Auth
 export const authApi = {
-  register: (data: { email: string; password: string; name: string }) =>
+  register: (data: { email: string; password: string; role: 'SELLER' | 'ORG_ADMIN'; businessName: string; location?: string }) =>
     fetchApi('/auth/register', { method: 'POST', body: JSON.stringify(data) }),
-  
+
   login: (data: { email: string; password: string }) =>
     fetchApi('/auth/login', { method: 'POST', body: JSON.stringify(data) }),
-  
+
   me: (token: string) =>
     fetchApi('/auth/me', { headers: { Authorization: `Bearer ${token}` } }),
 };
 
-//bundles
+// Bundles
 export const bundlesApi = {
   list: () => fetchApi('/bundles'),
-  
+
   getById: (id: string) => fetchApi(`/bundles/${id}`),
-  
-  create: (data: any, token: string) =>
+
+  create: (data: {
+    title: string;
+    description?: string;
+    categoryId?: string;
+    pickupStartAt: string;
+    pickupEndAt: string;
+    quantityTotal: number;
+    priceCents: number;
+    discountPct?: number;
+    allergensText?: string;
+  }, token: string) =>
     fetchApi('/bundles', {
       method: 'POST',
       body: JSON.stringify(data),
       headers: { Authorization: `Bearer ${token}` },
     }),
-  
+
   update: (id: string, data: any, token: string) =>
     fetchApi(`/bundles/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
       headers: { Authorization: `Bearer ${token}` },
     }),
-  
+
   activate: (id: string, token: string) =>
     fetchApi(`/bundles/${id}/activate`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
     }),
-  
+
   close: (id: string, token: string) =>
     fetchApi(`/bundles/${id}/close`, {
       method: 'POST',
@@ -70,115 +80,102 @@ export const bundlesApi = {
     }),
 };
 
-//reservations
-export const reservationsApi = {
-  reserve: (data: any, token: string) =>
-    fetchApi('/reservations', {
+// Orders (org places orders for bundles)
+export const ordersApi = {
+  create: (data: { postingId: string; orgId: string; quantity?: number }, token: string) =>
+    fetchApi('/orders', {
       method: 'POST',
       body: JSON.stringify(data),
       headers: { Authorization: `Bearer ${token}` },
     }),
-  
+
   byOrg: (orgId: string, token: string) =>
-    fetchApi(`/reservations/org/${orgId}`, {
+    fetchApi(`/orders/org/${orgId}`, {
       headers: { Authorization: `Bearer ${token}` },
     }),
-  
-  byEmployee: (employeeId: string, token: string) =>
-    fetchApi(`/reservations/employee/${employeeId}`, {
+
+  bySeller: (sellerId: string, token: string) =>
+    fetchApi(`/orders/seller/${sellerId}`, {
       headers: { Authorization: `Bearer ${token}` },
     }),
-  
-  verify: (id: string, code: string, token: string) =>
-    fetchApi(`/reservations/${id}/verify`, {
-      method: 'POST',
-      body: JSON.stringify({ code }),
-      headers: { Authorization: `Bearer ${token}` },
-    }),
-  
-  noShow: (id: string, token: string) =>
-    fetchApi(`/reservations/${id}/no-show`, {
+
+  collect: (id: string, token: string) =>
+    fetchApi(`/orders/${id}/collect`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
     }),
-  
+
   cancel: (id: string, token: string) =>
-    fetchApi(`/reservations/${id}/cancel`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
-    }),
-  
-  assign: (id: string, employeeId: string, token: string) =>
-    fetchApi(`/reservations/${id}/assign/${employeeId}`, {
+    fetchApi(`/orders/${id}/cancel`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
     }),
 };
 
-//analytics
+// Analytics (for sellers)
 export const analyticsApi = {
   dashboard: (sellerId: string, token: string) =>
     fetchApi(`/analytics/dashboard/${sellerId}`, {
       headers: { Authorization: `Bearer ${token}` },
     }),
-  
+
   sellThrough: (sellerId: string, token: string) =>
     fetchApi(`/analytics/sell-through/${sellerId}`, {
       headers: { Authorization: `Bearer ${token}` },
     }),
-  
-  waste: (sellerId: string, token: string) =>
-    fetchApi(`/analytics/waste/${sellerId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    }),
 };
 
-//gamification
+// Gamification (for orgs)
 export const gamificationApi = {
-  streak: (employeeId: string, token: string) =>
-    fetchApi(`/gamification/streak/${employeeId}`, {
+  streak: (orgId: string, token: string) =>
+    fetchApi(`/gamification/streak/${orgId}`, {
       headers: { Authorization: `Bearer ${token}` },
     }),
-  
-  impact: (employeeId: string, token: string) =>
-    fetchApi(`/gamification/impact/${employeeId}`, {
+
+  stats: (orgId: string, token: string) =>
+    fetchApi(`/gamification/stats/${orgId}`, {
       headers: { Authorization: `Bearer ${token}` },
     }),
-  
-  employeeBadges: (employeeId: string, token: string) =>
-    fetchApi(`/gamification/badges/${employeeId}`, {
+
+  orgBadges: (orgId: string, token: string) =>
+    fetchApi(`/gamification/badges/${orgId}`, {
       headers: { Authorization: `Bearer ${token}` },
     }),
-  
+
   allBadges: () => fetchApi('/gamification/badges'),
 };
 
-//issues
+// Issues
 export const issuesApi = {
   bySeller: (sellerId: string, token: string) =>
     fetchApi(`/issues/seller/${sellerId}`, {
       headers: { Authorization: `Bearer ${token}` },
     }),
-  
+
   openBySeller: (sellerId: string, token: string) =>
     fetchApi(`/issues/seller/${sellerId}/open`, {
       headers: { Authorization: `Bearer ${token}` },
     }),
-  
-  create: (data: any, token: string) =>
+
+  byOrg: (orgId: string, token: string) =>
+    fetchApi(`/issues/org/${orgId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+
+  create: (data: { orderId?: string; orgId: string; type: 'UNAVAILABLE' | 'QUALITY' | 'OTHER'; description: string }, token: string) =>
     fetchApi('/issues', {
       method: 'POST',
       body: JSON.stringify(data),
       headers: { Authorization: `Bearer ${token}` },
     }),
-  
-  respond: (id: string, data: any, token: string) =>
+
+  respond: (id: string, data: { response: string; resolve?: boolean }, token: string) =>
     fetchApi(`/issues/${id}/respond`, {
       method: 'POST',
       body: JSON.stringify(data),
       headers: { Authorization: `Bearer ${token}` },
     }),
-  
+
   resolve: (id: string, token: string) =>
     fetchApi(`/issues/${id}/resolve`, {
       method: 'POST',
@@ -186,7 +183,7 @@ export const issuesApi = {
     }),
 };
 
-//categories
+// Categories
 export const categoriesApi = {
   list: () => fetchApi('/categories'),
 };

@@ -16,16 +16,12 @@ public class IssueReport {
     private UUID issueId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "posting_id")
-    private BundlePosting posting;
+    @JoinColumn(name = "order_id")
+    private OrgOrder order;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reservation_id")
-    private Reservation reservation;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id")
-    private Employee employee;
+    @JoinColumn(name = "org_id")
+    private Organisation organisation;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -46,11 +42,10 @@ public class IssueReport {
 
     private Instant resolvedAt;
 
-	/// Getters
+    // Getters
     public UUID getIssueId() { return issueId; }
-    public BundlePosting getPosting() { return posting; }
-    public Reservation getReservation() { return reservation; }
-    public Employee getEmployee() { return employee; }
+    public OrgOrder getOrder() { return order; }
+    public Organisation getOrganisation() { return organisation; }
     public Type getType() { return type; }
     public String getDescription() { return description; }
     public Status getStatus() { return status; }
@@ -60,13 +55,11 @@ public class IssueReport {
 
     // Setters
     public void setIssueId(UUID issueId) { this.issueId = issueId; }
-    public void setPosting(BundlePosting posting) { this.posting = posting; }
-    public void setReservation(Reservation reservation) { this.reservation = reservation; }
-    public void setEmployee(Employee employee) { this.employee = employee; }
+    public void setOrder(OrgOrder order) { this.order = order; }
+    public void setOrganisation(Organisation organisation) { this.organisation = organisation; }
     public void setType(Type type) { this.type = type; }
     public void setDescription(String description) { this.description = description; }
     public void setStatus(Status status) { this.status = status; }
     public void setSellerResponse(String sellerResponse) { this.sellerResponse = sellerResponse; }
-    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
     public void setResolvedAt(Instant resolvedAt) { this.resolvedAt = resolvedAt; }
 }

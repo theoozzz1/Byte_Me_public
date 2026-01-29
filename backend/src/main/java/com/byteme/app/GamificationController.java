@@ -11,53 +11,49 @@ import java.util.UUID;
 @RequestMapping("/api/gamification")
 public class GamificationController {
 
-    private final EmployeeRepository employeeRepo;
-    private final RescueEventRepository rescueEventRepo;
+    private final OrganisationRepository orgRepo;
+    private final OrgOrderRepository orderRepo;
     private final BadgeRepository badgeRepo;
-    private final EmployeeBadgeRepository employeeBadgeRepo;
+    private final OrganisationBadgeRepository orgBadgeRepo;
 
-    public GamificationController(EmployeeRepository employeeRepo, RescueEventRepository rescueEventRepo,
-                                   BadgeRepository badgeRepo, EmployeeBadgeRepository employeeBadgeRepo) {
-        this.employeeRepo = employeeRepo;
-        this.rescueEventRepo = rescueEventRepo;
+    public GamificationController(OrganisationRepository orgRepo, OrgOrderRepository orderRepo,
+                                   BadgeRepository badgeRepo, OrganisationBadgeRepository orgBadgeRepo) {
+        this.orgRepo = orgRepo;
+        this.orderRepo = orderRepo;
         this.badgeRepo = badgeRepo;
-        this.employeeBadgeRepo = employeeBadgeRepo;
+        this.orgBadgeRepo = orgBadgeRepo;
     }
 
-    @GetMapping("/streak/{employeeId}")
-    public ResponseEntity<?> getStreak(@PathVariable UUID employeeId) {
-        var employee = employeeRepo.findById(employeeId).orElse(null);
-        if (employee == null) return ResponseEntity.notFound().build();
+    @GetMapping("/streak/{orgId}")
+    public ResponseEntity<?> getStreak(@PathVariable UUID orgId) {
+        var org = orgRepo.findById(orgId).orElse(null);
+        if (org == null) return ResponseEntity.notFound().build();
 
         return ResponseEntity.ok(new StreakResponse(
-                employee.getCurrentStreakWeeks(),
-                employee.getBestStreakWeeks(),
-                employee.getLastRescueWeekStart()
+                org.getCurrentStreakWeeks(),
+                org.getBestStreakWeeks(),
+                org.getLastOrderWeekStart()
         ));
     }
 
-    @GetMapping("/impact/{employeeId}")
-    public ResponseEntity<?> getImpact(@PathVariable UUID employeeId) {
-        var employee = employeeRepo.findById(employeeId).orElse(null);
-        if (employee == null) return ResponseEntity.notFound().build();
+    @GetMapping("/stats/{orgId}")
+    public ResponseEntity<?> getStats(@PathVariable UUID orgId) {
+        var org = orgRepo.findById(orgId).orElse(null);
+        if (org == null) return ResponseEntity.notFound().build();
 
-        long totalRescues = rescueEventRepo.countByEmployee_EmployeeId(employeeId);
-        long totalMeals = rescueEventRepo.sumMealsByEmployee(employeeId);
-        long totalCo2eGrams = rescueEventRepo.sumCo2eByEmployee(employeeId);
-        int badgeCount = employeeBadgeRepo.findByEmployeeId(employeeId).size();
+        int badgeCount = orgBadgeRepo.findByOrgId(orgId).size();
 
-        return ResponseEntity.ok(new ImpactResponse(
-                (int) totalRescues,
-                (int) totalMeals,
-                totalCo2eGrams / 1000.0,
-                employee.getCurrentStreakWeeks(),
+        return ResponseEntity.ok(new StatsResponse(
+                org.getTotalOrders(),
+                org.getCurrentStreakWeeks(),
+                org.getBestStreakWeeks(),
                 badgeCount
         ));
     }
 
-    @GetMapping("/badges/{employeeId}")
-    public List<EmployeeBadge> getEmployeeBadges(@PathVariable UUID employeeId) {
-        return employeeBadgeRepo.findByEmployeeId(employeeId);
+    @GetMapping("/badges/{orgId}")
+    public List<OrganisationBadge> getOrgBadges(@PathVariable UUID orgId) {
+        return orgBadgeRepo.findByOrgId(orgId);
     }
 
     @GetMapping("/badges")
@@ -69,50 +65,35 @@ public class GamificationController {
     public static class StreakResponse {
         private int currentStreakWeeks;
         private int bestStreakWeeks;
-        private LocalDate lastRescueWeekStart;
+        private LocalDate lastOrderWeekStart;
 
-        public StreakResponse() {}
-
-        public StreakResponse(int currentStreakWeeks, int bestStreakWeeks, LocalDate lastRescueWeekStart) {
+        public StreakResponse(int currentStreakWeeks, int bestStreakWeeks, LocalDate lastOrderWeekStart) {
             this.currentStreakWeeks = currentStreakWeeks;
             this.bestStreakWeeks = bestStreakWeeks;
-            this.lastRescueWeekStart = lastRescueWeekStart;
+            this.lastOrderWeekStart = lastOrderWeekStart;
         }
 
         public int getCurrentStreakWeeks() { return currentStreakWeeks; }
-        public void setCurrentStreakWeeks(int currentStreakWeeks) { this.currentStreakWeeks = currentStreakWeeks; }
         public int getBestStreakWeeks() { return bestStreakWeeks; }
-        public void setBestStreakWeeks(int bestStreakWeeks) { this.bestStreakWeeks = bestStreakWeeks; }
-        public LocalDate getLastRescueWeekStart() { return lastRescueWeekStart; }
-        public void setLastRescueWeekStart(LocalDate lastRescueWeekStart) { this.lastRescueWeekStart = lastRescueWeekStart; }
+        public LocalDate getLastOrderWeekStart() { return lastOrderWeekStart; }
     }
 
-    public static class ImpactResponse {
-        private int totalRescues;
-        private int totalMealsSaved;
-        private double totalCo2eSavedKg;
+    public static class StatsResponse {
+        private int totalOrders;
         private int currentStreakWeeks;
+        private int bestStreakWeeks;
         private int badgesEarned;
 
-        public ImpactResponse() {}
-
-        public ImpactResponse(int totalRescues, int totalMealsSaved, double totalCo2eSavedKg, int currentStreakWeeks, int badgesEarned) {
-            this.totalRescues = totalRescues;
-            this.totalMealsSaved = totalMealsSaved;
-            this.totalCo2eSavedKg = totalCo2eSavedKg;
+        public StatsResponse(int totalOrders, int currentStreakWeeks, int bestStreakWeeks, int badgesEarned) {
+            this.totalOrders = totalOrders;
             this.currentStreakWeeks = currentStreakWeeks;
+            this.bestStreakWeeks = bestStreakWeeks;
             this.badgesEarned = badgesEarned;
         }
 
-        public int getTotalRescues() { return totalRescues; }
-        public void setTotalRescues(int totalRescues) { this.totalRescues = totalRescues; }
-        public int getTotalMealsSaved() { return totalMealsSaved; }
-        public void setTotalMealsSaved(int totalMealsSaved) { this.totalMealsSaved = totalMealsSaved; }
-        public double getTotalCo2eSavedKg() { return totalCo2eSavedKg; }
-        public void setTotalCo2eSavedKg(double totalCo2eSavedKg) { this.totalCo2eSavedKg = totalCo2eSavedKg; }
+        public int getTotalOrders() { return totalOrders; }
         public int getCurrentStreakWeeks() { return currentStreakWeeks; }
-        public void setCurrentStreakWeeks(int currentStreakWeeks) { this.currentStreakWeeks = currentStreakWeeks; }
+        public int getBestStreakWeeks() { return bestStreakWeeks; }
         public int getBadgesEarned() { return badgesEarned; }
-        public void setBadgesEarned(int badgesEarned) { this.badgesEarned = badgesEarned; }
     }
 }

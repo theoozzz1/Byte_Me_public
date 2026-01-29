@@ -5,5 +5,5 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface SellerRepository extends JpaRepository<Seller, UUID> {
-    Optional<Seller> findByUser_UserId(UUID userId);
+    Optional<Seller> findByUserUserId(UUID userId);
 }

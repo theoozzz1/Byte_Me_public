@@ -1,5 +1,6 @@
 package com.byteme.app;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.UUID;
@@ -12,6 +13,7 @@ public class Seller {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID sellerId;
 
+    @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private UserAccount user;

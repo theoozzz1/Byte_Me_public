@@ -44,7 +44,7 @@ public class BundleController {
     @PostMapping
     public ResponseEntity<?> create(@RequestBody CreateBundleRequest req) {
         UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        var seller = sellerRepo.findByUser_UserId(userId)
+        var seller = sellerRepo.findByUserUserId(userId)
                 .orElseThrow(() -> new RuntimeException("Not a seller"));
 
         BundlePosting bundle = new BundlePosting();
@@ -52,15 +52,15 @@ public class BundleController {
         if (req.getCategoryId() != null) {
             bundle.setCategory(categoryRepo.findById(req.getCategoryId()).orElse(null));
         }
+        bundle.setTitle(req.getTitle());
+        bundle.setDescription(req.getDescription());
         bundle.setPickupStartAt(req.getPickupStartAt());
         bundle.setPickupEndAt(req.getPickupEndAt());
         bundle.setQuantityTotal(req.getQuantityTotal());
         bundle.setQuantityReserved(0);
         bundle.setPriceCents(req.getPriceCents());
-        bundle.setDiscountPct(req.getDiscountPct());
-        bundle.setContentsText(req.getContentsText());
+        bundle.setDiscountPct(req.getDiscountPct() != null ? req.getDiscountPct() : 0);
         bundle.setAllergensText(req.getAllergensText());
-        bundle.setEstimatedWeightGrams(req.getEstimatedWeightGrams());
         bundle.setStatus(req.isActivate() ? BundlePosting.Status.ACTIVE : BundlePosting.Status.DRAFT);
 
         return ResponseEntity.ok(bundleRepo.save(bundle));
@@ -76,10 +76,11 @@ public class BundleController {
             return ResponseEntity.status(403).body("Not your bundle");
         }
 
+        if (req.getTitle() != null) bundle.setTitle(req.getTitle());
+        if (req.getDescription() != null) bundle.setDescription(req.getDescription());
         if (req.getQuantityTotal() != null) bundle.setQuantityTotal(req.getQuantityTotal());
         if (req.getPriceCents() != null) bundle.setPriceCents(req.getPriceCents());
         if (req.getDiscountPct() != null) bundle.setDiscountPct(req.getDiscountPct());
-        if (req.getContentsText() != null) bundle.setContentsText(req.getContentsText());
         if (req.getAllergensText() != null) bundle.setAllergensText(req.getAllergensText());
 
         return ResponseEntity.ok(bundleRepo.save(bundle));
@@ -104,20 +105,24 @@ public class BundleController {
     // DTOs
     public static class CreateBundleRequest {
         private UUID categoryId;
+        private String title;
+        private String description;
         private Instant pickupStartAt;
         private Instant pickupEndAt;
         private Integer quantityTotal;
         private Integer priceCents;
         private Integer discountPct;
-        private String contentsText;
         private String allergensText;
-        private Integer estimatedWeightGrams;
         private boolean activate;
 
         public CreateBundleRequest() {}
 
         public UUID getCategoryId() { return categoryId; }
         public void setCategoryId(UUID categoryId) { this.categoryId = categoryId; }
+        public String getTitle() { return title; }
+        public void setTitle(String title) { this.title = title; }
+        public String getDescription() { return description; }
+        public void setDescription(String description) { this.description = description; }
         public Instant getPickupStartAt() { return pickupStartAt; }
         public void setPickupStartAt(Instant pickupStartAt) { this.pickupStartAt = pickupStartAt; }
         public Instant getPickupEndAt() { return pickupEndAt; }
@@ -128,33 +133,32 @@ public class BundleController {
         public void setPriceCents(Integer priceCents) { this.priceCents = priceCents; }
         public Integer getDiscountPct() { return discountPct; }
         public void setDiscountPct(Integer discountPct) { this.discountPct = discountPct; }
-        public String getContentsText() { return contentsText; }
-        public void setContentsText(String contentsText) { this.contentsText = contentsText; }
         public String getAllergensText() { return allergensText; }
         public void setAllergensText(String allergensText) { this.allergensText = allergensText; }
-        public Integer getEstimatedWeightGrams() { return estimatedWeightGrams; }
-        public void setEstimatedWeightGrams(Integer estimatedWeightGrams) { this.estimatedWeightGrams = estimatedWeightGrams; }
         public boolean isActivate() { return activate; }
         public void setActivate(boolean activate) { this.activate = activate; }
     }
 
     public static class UpdateBundleRequest {
+        private String title;
+        private String description;
         private Integer quantityTotal;
         private Integer priceCents;
         private Integer discountPct;
-        private String contentsText;
         private String allergensText;
 
         public UpdateBundleRequest() {}
 
+        public String getTitle() { return title; }
+        public void setTitle(String title) { this.title = title; }
+        public String getDescription() { return description; }
+        public void setDescription(String description) { this.description = description; }
         public Integer getQuantityTotal() { return quantityTotal; }
         public void setQuantityTotal(Integer quantityTotal) { this.quantityTotal = quantityTotal; }
         public Integer getPriceCents() { return priceCents; }
         public void setPriceCents(Integer priceCents) { this.priceCents = priceCents; }
         public Integer getDiscountPct() { return discountPct; }
         public void setDiscountPct(Integer discountPct) { this.discountPct = discountPct; }
-        public String getContentsText() { return contentsText; }
-        public void setContentsText(String contentsText) { this.contentsText = contentsText; }
         public String getAllergensText() { return allergensText; }
         public void setAllergensText(String allergensText) { this.allergensText = allergensText; }
     }

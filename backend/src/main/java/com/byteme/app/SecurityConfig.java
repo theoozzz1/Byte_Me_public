@@ -57,6 +57,8 @@ public class SecurityConfig {
                .requestMatchers("/api/bundles").permitAll()
                .requestMatchers("/api/bundles/{id}").permitAll()
                .requestMatchers("/api/categories").permitAll()
+               .requestMatchers("/api/gamification/badges").permitAll()
+               .requestMatchers("/error").permitAll()
                .anyRequest().authenticated()
            )
            .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);

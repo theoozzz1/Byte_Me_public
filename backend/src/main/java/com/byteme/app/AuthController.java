@@ -13,15 +13,15 @@ public class AuthController {
 
     private final UserAccountRepository userRepo;
     private final SellerRepository sellerRepo;
-    private final EmployeeRepository employeeRepo;
+    private final OrganisationRepository orgRepo;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-    public AuthController(UserAccountRepository userRepo, SellerRepository sellerRepo, 
-                          EmployeeRepository employeeRepo, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+    public AuthController(UserAccountRepository userRepo, SellerRepository sellerRepo,
+                          OrganisationRepository orgRepo, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
         this.userRepo = userRepo;
         this.sellerRepo = sellerRepo;
-        this.employeeRepo = employeeRepo;
+        this.orgRepo = orgRepo;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
     }
@@ -38,35 +38,65 @@ public class AuthController {
         user.setRole(req.getRole());
         userRepo.save(user);
 
-        if (req.getRole() == UserAccount.Role.SELLER && req.getBusinessName() != null) {
+        UUID profileId = null;
+
+        if (req.getRole() == UserAccount.Role.SELLER) {
             Seller seller = new Seller();
             seller.setUser(user);
             seller.setName(req.getBusinessName());
             seller.setLocationText(req.getLocation());
             sellerRepo.save(seller);
+            profileId = seller.getSellerId();
+        } else if (req.getRole() == UserAccount.Role.ORG_ADMIN) {
+            Organisation org = new Organisation();
+            org.setUser(user);
+            org.setName(req.getBusinessName());
+            org.setLocationText(req.getLocation());
+            org.setBillingEmail(req.getEmail());
+            orgRepo.save(org);
+            profileId = org.getOrgId();
         }
 
         String token = jwtUtil.generateToken(user.getUserId(), user.getEmail(), user.getRole());
-        return ResponseEntity.ok(new AuthResponse(token, user.getUserId(), user.getEmail(), user.getRole()));
+        return ResponseEntity.ok(new AuthResponse(token, user.getUserId(), profileId, user.getEmail(), user.getRole()));
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest req) {
         var user = userRepo.findByEmail(req.getEmail()).orElse(null);
-        
+
         if (user == null || !passwordEncoder.matches(req.getPassword(), user.getPasswordHash())) {
             return ResponseEntity.status(401).body("Invalid credentials");
         }
 
+        UUID profileId = null;
+        if (user.getRole() == UserAccount.Role.SELLER) {
+            var seller = sellerRepo.findByUserUserId(user.getUserId()).orElse(null);
+            if (seller != null) profileId = seller.getSellerId();
+        } else if (user.getRole() == UserAccount.Role.ORG_ADMIN) {
+            var org = orgRepo.findByUserUserId(user.getUserId()).orElse(null);
+            if (org != null) profileId = org.getOrgId();
+        }
+
         String token = jwtUtil.generateToken(user.getUserId(), user.getEmail(), user.getRole());
-        return ResponseEntity.ok(new AuthResponse(token, user.getUserId(), user.getEmail(), user.getRole()));
+        return ResponseEntity.ok(new AuthResponse(token, user.getUserId(), profileId, user.getEmail(), user.getRole()));
     }
 
     @GetMapping("/me")
     public ResponseEntity<?> me() {
         UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         var user = userRepo.findById(userId).orElseThrow();
-        return ResponseEntity.ok(new AuthResponse(null, user.getUserId(), user.getEmail(), user.getRole()));
+
+        UUID profileId = null;
+        if (user.getRole() == UserAccount.Role.SELLER) {
+            var seller = sellerRepo.findByUserUserId(userId).orElse(null);
+            if (seller != null) profileId = seller.getSellerId();
+        } else if (user.getRole() == UserAccount.Role.ORG_ADMIN) {
+            var org = orgRepo.findByUserUserId(userId).orElse(null);
+            if (org != null) profileId = org.getOrgId();
+        }
+
+        return ResponseEntity.ok(new AuthResponse(null, user.getUserId(), profileId, user.getEmail(), user.getRole()));
     }
 
     // DTOs
@@ -76,8 +106,6 @@ public class AuthController {
         private UserAccount.Role role;
         private String businessName;
         private String location;
-
-        public RegisterRequest() {}
 
         public String getEmail() { return email; }
         public void setEmail(String email) { this.email = email; }
@@ -95,8 +123,6 @@ public class AuthController {
         private String email;
         private String password;
 
-        public LoginRequest() {}
-
         public String getEmail() { return email; }
         public void setEmail(String email) { this.email = email; }
         public String getPassword() { return password; }
@@ -106,25 +132,22 @@ public class AuthController {
     public static class AuthResponse {
         private String token;
         private UUID userId;
+        private UUID profileId;
         private String email;
         private UserAccount.Role role;
 
-        public AuthResponse() {}
-
-        public AuthResponse(String token, UUID userId, String email, UserAccount.Role role) {
+        public AuthResponse(String token, UUID userId, UUID profileId, String email, UserAccount.Role role) {
             this.token = token;
             this.userId = userId;
+            this.profileId = profileId;
             this.email = email;
             this.role = role;
         }
 
         public String getToken() { return token; }
-        public void setToken(String token) { this.token = token; }
         public UUID getUserId() { return userId; }
-        public void setUserId(UUID userId) { this.userId = userId; }
+        public UUID getProfileId() { return profileId; }
         public String getEmail() { return email; }
-        public void setEmail(String email) { this.email = email; }
         public UserAccount.Role getRole() { return role; }
-        public void setRole(UserAccount.Role role) { this.role = role; }
     }
 }
