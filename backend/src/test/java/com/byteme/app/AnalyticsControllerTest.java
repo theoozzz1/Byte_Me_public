@@ -1,6 +1,6 @@
 package com.byteme.app;
 
-import com.byteme.app.Reservation.Status;
+import com.byteme.app.OrgOrder.Status;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -25,7 +25,7 @@ public class AnalyticsControllerTest {
     @Mock
     private BundlePostingRepository bundleRepo;
     @Mock
-    private ReservationRepository reservationRepo;
+    private OrgOrderRepository orderRepo;
     @Mock
     private IssueReportRepository issueRepo;
     @Mock
@@ -44,23 +44,21 @@ public class AnalyticsControllerTest {
 
     @Test
     void testGetDashboardSuccess() throws Exception {
-        
         Seller seller = new Seller();
         seller.setName("Green Grocery");
         when(sellerRepo.findById(sellerId)).thenReturn(Optional.of(seller));
 
-        
         BundlePosting b1 = new BundlePosting();
         b1.setQuantityTotal(10);
         when(bundleRepo.findBySeller_SellerId(sellerId)).thenReturn(Collections.singletonList(b1));
 
-        
-        when(reservationRepo.findBySellerAndStatus(sellerId, Status.COLLECTED))
-                .thenReturn(Arrays.asList(new Reservation(), new Reservation()));
-        when(reservationRepo.findBySellerAndStatus(sellerId, Status.NO_SHOW)).thenReturn(Collections.emptyList());
-        when(reservationRepo.findBySellerAndStatus(sellerId, Status.EXPIRED)).thenReturn(Collections.emptyList());
-        
-        
+        OrgOrder collected1 = new OrgOrder();
+        collected1.setStatus(Status.COLLECTED);
+        OrgOrder collected2 = new OrgOrder();
+        collected2.setStatus(Status.COLLECTED);
+        when(orderRepo.findByPostingSellerSellerId(sellerId))
+                .thenReturn(Arrays.asList(collected1, collected2));
+
         when(issueRepo.findOpenBySeller(sellerId)).thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/api/analytics/dashboard/" + sellerId))
@@ -68,7 +66,7 @@ public class AnalyticsControllerTest {
                 .andExpect(jsonPath("$.sellerName").value("Green Grocery"))
                 .andExpect(jsonPath("$.totalQuantity").value(10))
                 .andExpect(jsonPath("$.collectedCount").value(2))
-                .andExpect(jsonPath("$.sellThroughRate").value(20.0)); 
+                .andExpect(jsonPath("$.sellThroughRate").value(20.0));
     }
 
     @Test
@@ -80,31 +78,17 @@ public class AnalyticsControllerTest {
     }
 
     @Test
-    void testGetWasteMetrics() throws Exception {
-        
-        when(reservationRepo.findBySellerAndStatus(sellerId, Status.COLLECTED))
-                .thenReturn(Arrays.asList(new Reservation(), new Reservation(), new Reservation()));
-
-        mockMvc.perform(get("/api/analytics/waste/" + sellerId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.bundlesCollected").value(3))
-                .andExpect(jsonPath("$.weightSavedGrams").value(900)) 
-                .andExpect(jsonPath("$.co2eSavedKg").value(2.25));
-    }
-
-    @Test
     void testGetSellThrough() throws Exception {
-        when(reservationRepo.findBySellerAndStatus(sellerId, Status.COLLECTED))
-                .thenReturn(Collections.singletonList(new Reservation()));
-        when(reservationRepo.findBySellerAndStatus(sellerId, Status.NO_SHOW))
-                .thenReturn(Collections.singletonList(new Reservation()));
-        when(reservationRepo.findBySellerAndStatus(sellerId, Status.EXPIRED))
-                .thenReturn(Collections.emptyList());
+        OrgOrder collected = new OrgOrder();
+        collected.setStatus(Status.COLLECTED);
+        OrgOrder cancelled = new OrgOrder();
+        cancelled.setStatus(Status.CANCELLED);
+        when(orderRepo.findByPostingSellerSellerId(sellerId))
+                .thenReturn(Arrays.asList(collected, cancelled));
 
-        
         mockMvc.perform(get("/api/analytics/sell-through/" + sellerId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.collectionRate").value(50.0))
-                .andExpect(jsonPath("$.noShowRate").value(50.0));
+                .andExpect(jsonPath("$.cancelRate").value(50.0));
     }
 }

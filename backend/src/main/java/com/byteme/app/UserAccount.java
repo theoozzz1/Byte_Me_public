@@ -9,7 +9,7 @@ import java.util.UUID;
 @Table(name = "user_account")
 public class UserAccount {
 
-    public enum Role { SELLER, ORG_ADMIN, EMPLOYEE, MAINTAINER }
+    public enum Role { SELLER, ORG_ADMIN }
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

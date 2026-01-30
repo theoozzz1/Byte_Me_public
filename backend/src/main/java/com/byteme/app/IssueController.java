@@ -12,16 +12,14 @@ import java.util.UUID;
 public class IssueController {
 
     private final IssueReportRepository issueRepo;
-    private final BundlePostingRepository bundleRepo;
-    private final ReservationRepository reservationRepo;
-    private final EmployeeRepository employeeRepo;
+    private final OrgOrderRepository orderRepo;
+    private final OrganisationRepository orgRepo;
 
-    public IssueController(IssueReportRepository issueRepo, BundlePostingRepository bundleRepo,
-                           ReservationRepository reservationRepo, EmployeeRepository employeeRepo) {
+    public IssueController(IssueReportRepository issueRepo, OrgOrderRepository orderRepo,
+                           OrganisationRepository orgRepo) {
         this.issueRepo = issueRepo;
-        this.bundleRepo = bundleRepo;
-        this.reservationRepo = reservationRepo;
-        this.employeeRepo = employeeRepo;
+        this.orderRepo = orderRepo;
+        this.orgRepo = orgRepo;
     }
 
     @GetMapping("/seller/{sellerId}")
@@ -34,18 +32,22 @@ public class IssueController {
         return issueRepo.findOpenBySeller(sellerId);
     }
 
+    @GetMapping("/org/{orgId}")
+    public List<IssueReport> getByOrg(@PathVariable UUID orgId) {
+        return issueRepo.findByOrganisationOrgId(orgId);
+    }
+
     @PostMapping
     public ResponseEntity<?> create(@RequestBody CreateIssueRequest req) {
         IssueReport issue = new IssueReport();
-        if (req.getPostingId() != null) {
-            issue.setPosting(bundleRepo.findById(req.getPostingId()).orElse(null));
+
+        if (req.getOrderId() != null) {
+            issue.setOrder(orderRepo.findById(req.getOrderId()).orElse(null));
         }
-        if (req.getReservationId() != null) {
-            issue.setReservation(reservationRepo.findById(req.getReservationId()).orElse(null));
+        if (req.getOrgId() != null) {
+            issue.setOrganisation(orgRepo.findById(req.getOrgId()).orElse(null));
         }
-        if (req.getEmployeeId() != null) {
-            issue.setEmployee(employeeRepo.findById(req.getEmployeeId()).orElse(null));
-        }
+
         issue.setType(req.getType());
         issue.setDescription(req.getDescription());
 
@@ -59,7 +61,7 @@ public class IssueController {
 
         issue.setSellerResponse(req.getResponse());
         issue.setStatus(IssueReport.Status.RESPONDED);
-        
+
         if (req.isResolve()) {
             issue.setStatus(IssueReport.Status.RESOLVED);
             issue.setResolvedAt(Instant.now());
@@ -81,20 +83,15 @@ public class IssueController {
 
     // DTOs
     public static class CreateIssueRequest {
-        private UUID postingId;
-        private UUID reservationId;
-        private UUID employeeId;
+        private UUID orderId;
+        private UUID orgId;
         private IssueReport.Type type;
         private String description;
 
-        public CreateIssueRequest() {}
-
-        public UUID getPostingId() { return postingId; }
-        public void setPostingId(UUID postingId) { this.postingId = postingId; }
-        public UUID getReservationId() { return reservationId; }
-        public void setReservationId(UUID reservationId) { this.reservationId = reservationId; }
-        public UUID getEmployeeId() { return employeeId; }
-        public void setEmployeeId(UUID employeeId) { this.employeeId = employeeId; }
+        public UUID getOrderId() { return orderId; }
+        public void setOrderId(UUID orderId) { this.orderId = orderId; }
+        public UUID getOrgId() { return orgId; }
+        public void setOrgId(UUID orgId) { this.orgId = orgId; }
         public IssueReport.Type getType() { return type; }
         public void setType(IssueReport.Type type) { this.type = type; }
         public String getDescription() { return description; }
@@ -104,8 +101,6 @@ public class IssueController {
     public static class RespondRequest {
         private String response;
         private boolean resolve;
-
-        public RespondRequest() {}
 
         public String getResponse() { return response; }
         public void setResponse(String response) { this.response = response; }
