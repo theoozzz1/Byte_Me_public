@@ -15,6 +15,8 @@ import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -31,10 +33,12 @@ class IssueControllerTest {
 
     private MockMvc mockMvc;
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private UUID mockUserId;
 
     @Mock private IssueReportRepository issueRepo;
     @Mock private ReservationRepository reservationRepo;
     @Mock private OrganisationRepository orgRepo;
+    @Mock private SellerRepository sellerRepo;
 
     @InjectMocks
     private IssueController issueController;
@@ -50,11 +54,21 @@ class IssueControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(issueController)
                 .setMessageConverters(new MappingJackson2HttpMessageConverter(testMapper))
                 .build();
+
+        mockUserId = UUID.randomUUID();
+        UsernamePasswordAuthenticationToken auth =
+            new UsernamePasswordAuthenticationToken(mockUserId, null, Collections.emptyList());
+        SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
     @Test
     void testGetBySeller() throws Exception {
         UUID sellerId = UUID.randomUUID();
+        UserAccount user = new UserAccount();
+        user.setUserId(mockUserId);
+        Seller seller = new Seller();
+        seller.setUser(user);
+        when(sellerRepo.findById(sellerId)).thenReturn(Optional.of(seller));
         when(issueRepo.findBySeller(sellerId)).thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/api/issues/seller/{sellerId}", sellerId))
@@ -65,6 +79,11 @@ class IssueControllerTest {
     @Test
     void testGetOpenBySeller() throws Exception {
         UUID sellerId = UUID.randomUUID();
+        UserAccount user = new UserAccount();
+        user.setUserId(mockUserId);
+        Seller seller = new Seller();
+        seller.setUser(user);
+        when(sellerRepo.findById(sellerId)).thenReturn(Optional.of(seller));
         when(issueRepo.findOpenBySeller(sellerId)).thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/api/issues/seller/{sellerId}/open", sellerId))
@@ -74,6 +93,11 @@ class IssueControllerTest {
     @Test
     void testGetByOrg() throws Exception {
         UUID orgId = UUID.randomUUID();
+        UserAccount user = new UserAccount();
+        user.setUserId(mockUserId);
+        Organisation org = new Organisation();
+        org.setUser(user);
+        when(orgRepo.findById(orgId)).thenReturn(Optional.of(org));
         when(issueRepo.findByOrganisationOrgId(orgId)).thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/api/issues/org/{orgId}", orgId))

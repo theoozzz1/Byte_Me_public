@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -20,6 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class AnalyticsControllerTest {
 
     private MockMvc mockMvc;
+    private UUID mockUserId;
 
     @Mock
     private BundlePostingRepository bundleRepo;
@@ -39,12 +42,20 @@ public class AnalyticsControllerTest {
     void setup() {
         MockitoAnnotations.openMocks(this);
         mockMvc = MockMvcBuilders.standaloneSetup(analyticsController).build();
+
+        mockUserId = UUID.randomUUID();
+        UsernamePasswordAuthenticationToken auth =
+            new UsernamePasswordAuthenticationToken(mockUserId, null, Collections.emptyList());
+        SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
     @Test
     void testGetDashboardSuccess() throws Exception {
+        UserAccount user = new UserAccount();
+        user.setUserId(mockUserId);
         Seller seller = new Seller();
         seller.setName("Green Grocery");
+        seller.setUser(user);
         when(sellerRepo.findById(sellerId)).thenReturn(Optional.of(seller));
 
         BundlePosting b1 = new BundlePosting();
@@ -78,6 +89,12 @@ public class AnalyticsControllerTest {
 
     @Test
     void testGetSellThrough() throws Exception {
+        UserAccount user = new UserAccount();
+        user.setUserId(mockUserId);
+        Seller seller = new Seller();
+        seller.setUser(user);
+        when(sellerRepo.findById(sellerId)).thenReturn(Optional.of(seller));
+
         Reservation collected = new Reservation();
         collected.setStatus(Reservation.Status.COLLECTED);
         Reservation cancelled = new Reservation();

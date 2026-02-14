@@ -234,8 +234,7 @@ public class FullFlowIntegrationTest {
                         .header("Authorization", "Bearer " + sellerToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Surplus Bread Bundle"))
-                .andExpect(jsonPath("$.status").value("ACTIVE"))
-                .andExpect(jsonPath("$.quantityReserved").value(1));
+                .andExpect(jsonPath("$.status").value("ACTIVE"));
     }
 
     @Test

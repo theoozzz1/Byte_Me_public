@@ -158,7 +158,12 @@ class BundleControllerTest {
     @Test
     void testActivate_Success() throws Exception {
         UUID id = UUID.randomUUID();
+        UserAccount user = new UserAccount();
+        user.setUserId(mockUserId);
+        Seller seller = new Seller();
+        seller.setUser(user);
         BundlePosting b = new BundlePosting();
+        b.setSeller(seller);
         when(bundleRepo.findById(id)).thenReturn(Optional.of(b));
         when(bundleRepo.save(any())).thenAnswer(i -> i.getArgument(0));
 
@@ -170,7 +175,12 @@ class BundleControllerTest {
     @Test
     void testClose_Success() throws Exception {
         UUID id = UUID.randomUUID();
+        UserAccount user = new UserAccount();
+        user.setUserId(mockUserId);
+        Seller seller = new Seller();
+        seller.setUser(user);
         BundlePosting b = new BundlePosting();
+        b.setSeller(seller);
         when(bundleRepo.findById(id)).thenReturn(Optional.of(b));
         when(bundleRepo.save(any())).thenAnswer(i -> i.getArgument(0));
 

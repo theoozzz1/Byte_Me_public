@@ -13,6 +13,8 @@ import org.mockito.Mock;
 import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -27,6 +29,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 class GamificationControllerTest {
 
     private MockMvc mockMvc;
+    private UUID mockUserId;
 
     @Mock private OrganisationRepository orgRepo;
     @Mock private OrganisationStreakCacheRepository streakRepo;
@@ -48,12 +51,20 @@ class GamificationControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(gamificationController)
                 .setMessageConverters(new MappingJackson2HttpMessageConverter(objectMapper))
                 .build();
+
+        mockUserId = UUID.randomUUID();
+        UsernamePasswordAuthenticationToken auth =
+            new UsernamePasswordAuthenticationToken(mockUserId, null, Collections.emptyList());
+        SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
     @Test
     void testGetStreak_Success() throws Exception {
         UUID orgId = UUID.randomUUID();
+        UserAccount user = new UserAccount();
+        user.setUserId(mockUserId);
         Organisation org = new Organisation();
+        org.setUser(user);
 
         OrganisationStreakCache streak = new OrganisationStreakCache();
         streak.setCurrentStreakWeeks(5);
@@ -73,7 +84,10 @@ class GamificationControllerTest {
     @Test
     void testGetStats_Success() throws Exception {
         UUID orgId = UUID.randomUUID();
+        UserAccount user = new UserAccount();
+        user.setUserId(mockUserId);
         Organisation org = new Organisation();
+        org.setUser(user);
 
         OrganisationStreakCache streak = new OrganisationStreakCache();
         streak.setCurrentStreakWeeks(3);
