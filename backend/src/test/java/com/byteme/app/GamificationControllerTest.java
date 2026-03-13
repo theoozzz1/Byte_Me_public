@@ -137,11 +137,13 @@ class GamificationControllerTest {
         assertEquals(5, streak.getBestStreakWeeks());
         assertEquals(date, streak.getLastRescueWeekStart());
 
-        GamificationController.StatsResponse stats = new GamificationController.StatsResponse(100, 10, 20, 15);
+        GamificationController.StatsResponse stats = new GamificationController.StatsResponse(100, 10, 20, 15, 42L, 8400L);
 
         assertEquals(100, stats.getTotalReservations());
         assertEquals(10, stats.getCurrentStreakWeeks());
         assertEquals(20, stats.getBestStreakWeeks());
         assertEquals(15, stats.getBadgesEarned());
+        assertEquals(42L, stats.getMealsRescued());
+        assertEquals(8400L, stats.getCo2eSavedGrams());
     }
 }
