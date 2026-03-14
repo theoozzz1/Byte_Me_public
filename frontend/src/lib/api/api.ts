@@ -43,6 +43,11 @@ export const bundlesApi = {
 
   getById: (id: string) => fetchApi(`/bundles/${id}`),
 
+  bySeller: (sellerId: string, token: string) =>
+    fetchApi(`/bundles/seller/${sellerId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+
   create: (data: {
     title: string;
     description?: string;
@@ -140,6 +145,11 @@ export const analyticsApi = {
     fetchApi(`/analytics/popular-categories/${sellerId}`, {
       headers: { Authorization: `Bearer ${token}` },
     }),
+
+  wasteAvoided: (sellerId: string, token: string) =>
+    fetchApi(`/analytics/waste-avoided/${sellerId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    }),
 };
 
 // Gamification (for orgs)
@@ -235,6 +245,11 @@ export const forecastApi = {
 
   metrics: (sellerId: string, token: string) =>
     fetchApi(`/forecast/metrics/${sellerId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+
+  evaluate: (sellerId: string, token: string) =>
+    fetchApi(`/forecast/evaluate/${sellerId}`, {
       headers: { Authorization: `Bearer ${token}` },
     }),
 };

@@ -122,10 +122,12 @@ export interface StreakResponse {
 }
 
 export interface StatsResponse {
-  totalOrders: number;
+  totalReservations: number;
   currentStreakWeeks: number;
   bestStreakWeeks: number;
   badgesEarned: number;
+  mealsRescued: number;
+  co2eSavedGrams: number;
 }
 
 // Analytics
@@ -138,6 +140,14 @@ export interface DashboardResponse {
   expiredCount: number;
   sellThroughRate: number;
   openIssueCount: number;
+}
+
+export interface WasteAvoidedResponse {
+  wasteAvoidedGrams: number;
+  wasteAvoidedKg: number;
+  co2eAvoidedKg: number;
+  avgWeightPerBundleKg: number;
+  totalBundlesCollected: number;
 }
 
 export interface SellThroughResponse {
