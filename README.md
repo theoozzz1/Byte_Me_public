@@ -11,7 +11,7 @@
   <img src="https://img.shields.io/badge/Spring%20Boot-3.2-green" alt="Spring Boot 3.2">
   <img src="https://img.shields.io/badge/Next.js-16-black" alt="Next.js 16">
   <img src="https://img.shields.io/badge/PostgreSQL-16-blue" alt="PostgreSQL">
-  <img src="https://img.shields.io/badge/license-MIT-lightgrey" alt="Apache 2.0">
+  <img src="https://img.shields.io/badge/license-Apache%202.0-lightgrey" alt="Apache 2.0">
 </p>
 
 ---
